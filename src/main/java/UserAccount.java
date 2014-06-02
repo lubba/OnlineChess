@@ -15,17 +15,25 @@ public class UserAccount {
         AWAITING_GAME;
     }
 
-    public static int idDispatcher = 1;
-    private static final String SALT = "my name is Alice";
+    private static final String SALT         = "my name is Alice";
+    public static        int    idDispatcher = 1;
     private final String login;
     private final long   passwordHash;
-    private final int id;
+    private final int    id;
     private       State  state;
     private List<UserAccount> playOffers = new ArrayList<UserAccount>();
 
+    public UserAccount(String login, String password) {
+        this.login = login;
+        this.passwordHash = hash(password);
+        state = State.NOT_PLAYING;
+        id = idDispatcher++;
+
+    }
+
     public boolean addOffer(UserAccount friend) {
         boolean connected = false;
-        if(friend.getOffers().contains(this)){
+        if (friend.getOffers().contains(this)) {
             state = State.AWAITING_GAME;
             friend.setState(State.AWAITING_GAME);
 
@@ -42,20 +50,16 @@ public class UserAccount {
     public int getStateInt() {
         return state.ordinal();
     }
+
     public State getState() {return state;}
 
+    public void setState(State state) {
+        this.state = state;
+    }
 
     public int getId() {
 
         return id;
-    }
-
-    public UserAccount(String login, String password) {
-        this.login = login;
-        this.passwordHash = hash(password);
-        state = State.NOT_PLAYING;
-        id = idDispatcher++;
-
     }
 
     public String getLogin() {
@@ -69,9 +73,9 @@ public class UserAccount {
      *
      * @return hash of input string
      */
-    private  static long hash(String str) {
+    private long hash(String str) {
         long hash = 5381;
-        char[] chars = SALT.concat(str).toCharArray();
+        char[] chars = SALT.concat(str).concat(login).toCharArray();
         for (char c : chars) {
             hash = ((hash << 5) + hash) + c; //hash * 33 + c;
         }
@@ -79,25 +83,20 @@ public class UserAccount {
     }
 
     public boolean tryLogin(@NotNull String login, @NotNull String password) {
-        return login.equals(this.login) && comparePassword(fullPassword(login, password));
+        return login.equals(this.login) && comparePassword(password);
     }
 
     public boolean comparePassword(String password) {
-        return (passwordHash == hash(fullPassword(login, password)));
+        return (passwordHash == hash(password));
     }
 
-    private static String fullPassword(String login, String password) {
-        return password.concat(login);
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-    public String getOffersString(){
+    public String getOffersString() {
         return playOffers.toString();
     }
-    public List<UserAccount> getOffers(){
+
+    public List<UserAccount> getOffers() {
         return playOffers;
     }
-    public int getOffersAmount(){return playOffers.size();}
+
+    public int getOffersAmount() {return playOffers.size();}
 }
