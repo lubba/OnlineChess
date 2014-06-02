@@ -4,7 +4,7 @@
 
     <servlet>
         <servlet-name>start</servlet-name>
-        <servlet-class>StartServlet</servlet-class>
+        <servlet-class>server.StartServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>start</servlet-name>
@@ -17,7 +17,7 @@
 
     <servlet>
         <servlet-name>game</servlet-name>
-        <servlet-class>GameServlet</servlet-class>
+        <servlet-class>server.GameServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>game</servlet-name>
@@ -26,7 +26,7 @@
 
     <servlet>
         <servlet-name>login</servlet-name>
-        <servlet-class>LoginServlet</servlet-class>
+        <servlet-class>server.LoginServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>login</servlet-name>
@@ -35,7 +35,7 @@
 
     <servlet>
         <servlet-name>registration</servlet-name>
-        <servlet-class>RegistrationServlet</servlet-class>
+        <servlet-class>server.RegistrationServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>registration</servlet-name>

@@ -1,3 +1,5 @@
+package server;
+
 import chess.ChessGame;
 
 import javax.validation.constraints.NotNull;
@@ -26,7 +28,7 @@ public class UserAccount {
     private final int               id;
     private final List<UserAccount> playOffers;
     private       State             state;
-    private ChessGame game;
+    private       ChessGame         game;
 
     public UserAccount(String login, String password) {
         this.login = login;
@@ -81,12 +83,18 @@ public class UserAccount {
         return state;
     }
 
+    public void setState(State state) {
+        this.state = state;
+    }
+
     public int getStateInt() {
         return state.ordinal();
     }
 
-    public void setState(State state) {
-        this.state = state;
+    public UserAccount getOpponent() {
+        if (state == State.PLAYING || state == State.AWAITING_GAME) {
+            return playOffers.get(0);
+        } else { throw new IllegalStateException("Player has not chosen an opponent"); }
     }
 
     public boolean tryLogin(@NotNull String login, @NotNull String password) {
@@ -113,4 +121,9 @@ public class UserAccount {
         return hash;
     }
 
+    public void setGame(ChessGame game) {
+        if (state == State.AWAITING_GAME) {
+            this.game = game;
+        } else { throw new IllegalStateException("Player do not waiting for game start"); }
+    }
 }
