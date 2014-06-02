@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 public class UserAccount {
     public enum State {
         PLAYING,
+        SEARCHING,
         NOT_PLAYING
     }
 

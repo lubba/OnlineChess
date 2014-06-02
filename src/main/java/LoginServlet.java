@@ -11,9 +11,12 @@ import java.util.List;
  * Time: 0:08
  */
 public class LoginServlet extends HttpServlet {
+
+    public static final String JASPER = "/auth/login.jsp";
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("/login.jsp").forward(req, resp);
+        req.getRequestDispatcher(JASPER).forward(req, resp);
     }
 
     @Override
@@ -34,7 +37,7 @@ public class LoginServlet extends HttpServlet {
                 }
             }
             req.setAttribute("fail", fail);
-            req.getRequestDispatcher("/login.jsp").forward(req, resp);
+            req.getRequestDispatcher(JASPER).forward(req, resp);
         }
     }
 }

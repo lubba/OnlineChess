@@ -11,6 +11,9 @@ import java.util.List;
  * Time: 0:08
  */
 public class RegistrationServlet extends HttpServlet {
+
+    public static final String JASPER = "/auth/register.jsp";
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
@@ -42,11 +45,11 @@ public class RegistrationServlet extends HttpServlet {
             }
             req.setAttribute("fail", fail);
         } //else it's "signup" from login.jsp
-        req.getRequestDispatcher("/register.jsp").forward(req, resp);
+        req.getRequestDispatcher(JASPER).forward(req, resp);
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("/register.jsp").forward(req, resp);
+        req.getRequestDispatcher(JASPER).forward(req, resp);
     }
 }

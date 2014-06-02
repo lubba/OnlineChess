@@ -23,7 +23,7 @@
 
     <servlet>
         <servlet-name>users.jsp</servlet-name>
-        <jsp-file>/users.jsp</jsp-file>
+        <jsp-file>/admin/users.jsp</jsp-file>
     </servlet>
     <servlet-mapping>
         <servlet-name>users.jsp</servlet-name>
