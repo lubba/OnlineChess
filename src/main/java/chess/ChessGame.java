@@ -11,9 +11,9 @@ import java.util.*;
  */
 public class ChessGame {
 
-    public static final int WHITE = 0;
-    public static final int BLACK = 1;
-
+    public static final  int           WHITE      = 0;
+    private              int           actor      = WHITE;
+    public static final  int           BLACK      = 1;
     public static final  int           PAWN       = 1;
     public static final  int           BISHOP     = 2;
     public static final  int           KNIGHT     = 3;
@@ -26,10 +26,10 @@ public class ChessGame {
     private final        StepArea      sa         = new StepArea();
     private final        MakesCheck    mc         = new MakesCheck();
     private final        StringBuilder history    = new StringBuilder("\nHistory:\n");
-    private              int           actor      = WHITE;
     private int turnCount;
     private UserAccount[] players = new UserAccount[2];
     private TurnInfo lastTurnInfo;
+    private boolean  underCheck;
 
     public ChessGame(UserAccount white, UserAccount black) {
         players[0] = white;
@@ -58,8 +58,11 @@ public class ChessGame {
             if (pretty.length() != 2) {
                 throw new RuntimeException("Wrong cell: " + pretty);
             }
-            i = Character.getNumericValue(pretty.charAt(1));
-            j = Character.getNumericValue(letter2index.get(pretty.charAt(0)));
+
+            char letter = pretty.charAt(0);
+            char digit = pretty.charAt(1);
+            i = 8 - Character.digit(digit, 10);
+            j = letter2index.get(letter);
         }
 
         private Cell(int x, int y) {
@@ -68,7 +71,7 @@ public class ChessGame {
         }
 
         public String toString() {
-            return '[' + i + ", " + j + ']';
+            return "[" + j + ", " + i + ']';
         }
 
         public String toStringPretty() {
@@ -154,9 +157,9 @@ public class ChessGame {
 
     private static final class ToStringer {
         private static final char[] SS = {'_', 'p', 'b', 'k', 'r', 'q', 'g', 'X', 'X', 'X', 'X', 'P', 'B', 'K', 'R',
-                'Q', 'G'};
+                'Q', 'G', 'X', 'X', 'X', '_'};
         private static final char[] S  = {'＿', '♙', '♗', '♘', '♖', '♕', '♔', 'X', 'X', 'X', 'X', '♟', '♝', '♞', '♜',
-                '♛', '♚'};
+                '♛', '♚', 'X', 'X', 'X', '＿'};
         private static final char   I  = '|';
 
         public static String parseWithArea(int[][] board, List<Cell> area) {
@@ -191,11 +194,12 @@ public class ChessGame {
             return parse(game.board, false);
         }
 
-        public static String showCell(ChessGame game, final Cell cell) {
-            return parseWithArea(game.board, new ArrayList<Cell>() {{add(cell);}});
-        }
+//        public static String showCell(ChessGame game, final Cell cell) {
+//            return parseWithArea(game.board, new ArrayList<Cell>() {{add(cell);}});
+//        }
 
         public static String showArea(ChessGame game, List<Cell> area) {
+            removeWrongCells(area);
             return parseWithArea(game.board, area);
         }
     }
@@ -272,8 +276,9 @@ public class ChessGame {
             return false;
         }
     }
-
+    @Deprecated
     private final class AttackArea {
+        @Deprecated
         public List<Cell> bishop(Cell of) {
             List<Cell> list = new ArrayList<Cell>();
             Cell bishRunner = of.e();
@@ -298,83 +303,118 @@ public class ChessGame {
             }
             return list;
         }
-
-        public List<Cell> rook(Cell of) {
+        @Deprecated
+        public List<Cell> rook(Cell cell) {
             List<Cell> list = new ArrayList<Cell>();
-            Cell rookRunner = of.d();
-            while (!rookRunner.wrong()) {
-                list.add(rookRunner);
+            int c = getFigureColor(getFigure(cell));
+            Cell rookRunner = cell.d();
+            while (isEmpty(rookRunner)) {
                 rookRunner = rookRunner.d();
             }
-            rookRunner = of.x();
-            while (!rookRunner.wrong()) {
+            if (getFigureColor(getFigure(rookRunner)) != c) {
                 list.add(rookRunner);
+            }
+            rookRunner = cell.x();
+            while (isEmpty(rookRunner)) {
                 rookRunner = rookRunner.x();
             }
-            rookRunner = of.a();
-            while (!rookRunner.wrong()) {
+            if (getFigureColor(getFigure(rookRunner)) != c) {
                 list.add(rookRunner);
+            }
+            rookRunner = cell.a();
+            while (isEmpty(rookRunner)) {
                 rookRunner = rookRunner.a();
             }
-            rookRunner = of.w();
-            while (!rookRunner.wrong()) {
+            if (getFigureColor(getFigure(rookRunner)) != c) {
                 list.add(rookRunner);
+            }
+            rookRunner = cell.w();
+            while (isEmpty(rookRunner)) {
                 rookRunner = rookRunner.w();
+            }
+            if (getFigureColor(getFigure(rookRunner)) != c) {
+                list.add(rookRunner);
             }
             return list;
         }
-
+        @Deprecated
         public List<Cell> queen(Cell of) {
             List<Cell> bish = bishop(of);
             bish.addAll(rook(of));
             return bish;
         }
-
+        @Deprecated
         public List<Cell> king(Cell of) {
             List<Cell> list = new ArrayList<Cell>();
-            list.add(of.q());
-            list.add(of.w());
-            list.add(of.e());
-            list.add(of.a());
-            list.add(of.d());
-            list.add(of.z());
-            list.add(of.x());
-            list.add(of.c());
+            int c = getFigureColor(getFigure(of));
+            Cell cell = of.q();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
+            cell = of.w();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
+            cell = of.e();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
+            cell = of.a();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
+            cell = of.d();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
+            cell = of.z();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
+            cell = of.x();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
+            cell = of.c();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
             removeWrongCells(list);
             return list;
         }
-
+        @Deprecated
         public List<Cell> knight(Cell of) {
             List<Cell> list = new ArrayList<Cell>();
-            list.add(of.w(2).a());
-            list.add(of.w(2).d());
+            int c = getFigureColor(getFigure(of));
+            Cell cell = of.w(2).a();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
+            cell = of.w(2).d();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
 
-            list.add(of.d(2).w());
-            list.add(of.d(2).x());
+            cell = of.d(2).w();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
+            cell = of.d(2).x();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
 
-            list.add(of.x(2).d());
-            list.add(of.x(2).a());
+            cell = of.x(2).d();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
+            cell = of.x(2).a();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
 
-            list.add(of.a(2).w());
-            list.add(of.a(2).x());
+            cell = of.a(2).w();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
+            cell = of.a(2).x();
+            if (getFigureColor(getFigure(cell)) != c) { list.add(cell); }
 
             removeWrongCells(list);
             return list;
         }
-
+        @Deprecated
         public List<Cell> pawn(Cell of) {
             List<Cell> list = new ArrayList<Cell>();
             int fig = getFigure(of);
             if (getFigureColor(fig) == WHITE) {
                 Cell l = of.q();
-                if (l.correct()) { list.add(l); }
                 Cell r = of.e();
-                if (r.correct()) { list.add(r); }
+                if (l.correct() && getFigureColor(getFigure(l)) == BLACK) {
+                    list.add(l);
+                }
+                if (r.correct() && getFigureColor(getFigure(r)) == BLACK) {
+                    list.add(r);
+                }
             } else {
                 Cell l = of.z();
-                if (l.correct()) {list.add(l);}
                 Cell r = of.c();
-                if (r.correct()) {list.add(r);}
+                if (l.correct() && getFigureColor(getFigure(l)) == WHITE) {
+                    list.add(l);
+                }
+                if (r.correct() && getFigureColor(getFigure(r)) == WHITE) {
+                    list.add(r);
+                }
             }
             return list;
         }
@@ -384,44 +424,80 @@ public class ChessGame {
         public List<Cell> pawn(Cell cell) {
             List<Cell> list = aa.pawn(cell);
             int fig = getFigure(cell);
+            boolean canGo = true;
             if (getFigureColor(fig) == WHITE) {
                 Cell l = cell.q();
                 Cell r = cell.e();
-                if (getFigure(l) != 11 && getFigure(r) != 11) { list.add(cell.w()); }
+                if (l.correct() && getFigureColor(getFigure(l)) == BLACK) {
+                    if (getFigure(l) % 10 == PAWN) {
+                        canGo = false;
+                    }
+                    list.add(l);
+                }
+                if (r.correct() && getFigureColor(getFigure(r)) == BLACK) {
+                    if (getFigure(r) % 10 == PAWN) {
+                        canGo = false;
+                    }
+                    list.add(r);
+                }
+                if (canGo) {
+                    list.add(cell.w());
+                    if (cell.i == 6) {
+                        list.add(cell.w(2));
+                    }
+                }
             } else {
-                Cell l = cell.z();
-                Cell r = cell.c();
-                if (getFigure(l) != 11 && getFigure(r) != 11) {list.add(cell.x());}
+                Cell l = cell.c();
+                Cell r = cell.z();
+                if (l.correct() && getFigureColor(getFigure(l)) == WHITE) {
+                    if (getFigure(l) % 10 == PAWN) {
+                        canGo = false;
+                    }
+                    list.add(l);
+                }
+                if (r.correct() && getFigureColor(getFigure(r)) == WHITE) {
+                    if (getFigure(r) % 10 == PAWN) {
+                        canGo = false;
+                    }
+                    list.add(r);
+                }
+                if (canGo) {
+                    list.add(cell.x());
+                    if (cell.i == 1) {
+                        list.add(cell.x(2));
+                    }
+                }
             }
             return list;
         }
 
         public List<Cell> bishop(Cell cell) {
             List<Cell> list = new ArrayList<Cell>();
+            int c = getFigureColor(getFigure(cell));
             Cell bishRunner = cell.e();
             while (isEmpty(bishRunner)) {
                 list.add(bishRunner);
                 bishRunner = bishRunner.e();
             }
-            list.add(bishRunner);
+            if (getFigureColor(getFigure(bishRunner)) != c) { list.add(bishRunner); }
             bishRunner = cell.c();
             while (isEmpty(bishRunner)) {
                 list.add(bishRunner);
                 bishRunner = bishRunner.c();
             }
-            list.add(bishRunner);
+            if (getFigureColor(getFigure(bishRunner)) != c) { list.add(bishRunner); }
             bishRunner = cell.z();
             while (isEmpty(bishRunner)) {
                 list.add(bishRunner);
                 bishRunner = bishRunner.z();
             }
-            list.add(bishRunner);
+            if (getFigureColor(getFigure(bishRunner)) != c) { list.add(bishRunner); }
             bishRunner = cell.q();
             while (isEmpty(bishRunner)) {
                 list.add(bishRunner);
                 bishRunner = bishRunner.q();
             }
-            list.add(bishRunner);
+            if (getFigureColor(getFigure(bishRunner)) != c) { list.add(bishRunner); }
             return list;
         }
 
@@ -429,30 +505,39 @@ public class ChessGame {
 
         public List<Cell> rook(Cell cell) {
             List<Cell> list = new ArrayList<Cell>();
+            int c = getFigureColor(getFigure(cell));
             Cell rookRunner = cell.d();
             while (isEmpty(rookRunner)) {
                 list.add(rookRunner);
                 rookRunner = rookRunner.d();
             }
-            list.add(rookRunner);
+            if (getFigureColor(getFigure(rookRunner)) != c) {
+                list.add(rookRunner);
+            }
             rookRunner = cell.x();
             while (isEmpty(rookRunner)) {
                 list.add(rookRunner);
                 rookRunner = rookRunner.x();
             }
-            list.add(rookRunner);
+            if (getFigureColor(getFigure(rookRunner)) != c) {
+                list.add(rookRunner);
+            }
             rookRunner = cell.a();
             while (isEmpty(rookRunner)) {
                 list.add(rookRunner);
                 rookRunner = rookRunner.a();
             }
-            list.add(rookRunner);
+            if (getFigureColor(getFigure(rookRunner)) != c) {
+                list.add(rookRunner);
+            }
             rookRunner = cell.w();
             while (isEmpty(rookRunner)) {
                 list.add(rookRunner);
                 rookRunner = rookRunner.w();
             }
-            list.add(rookRunner);
+            if (getFigureColor(getFigure(rookRunner)) != c) {
+                list.add(rookRunner);
+            }
             return list;
         }
 
@@ -489,24 +574,46 @@ public class ChessGame {
         board[7][5] = BISHOP;
         board[7][6] = KNIGHT;
         board[7][7] = ROOK;
+        for (int i = 2; i < 6; i++) {
+            for (int j = 0; j < 8; j++) {
+                board[i][j] = 20;
+            }
+        }
     }
 
-    public String getPrettyField() {
-        return ToStringer.toStringPretty(this);
+    private static void removeWrongCells(List<Cell> list) {
+        ListIterator<Cell> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+            Cell c = iterator.next();
+            if (c.wrong()) { iterator.remove(); }
+        }
+    }
+
+    public static void main(String[] args) {
+        ChessGame game = new ChessGame(null, null);
+        game.board[2][3] = KING;
+        game.board[2][4] = KING;
+
+        System.out.println(ToStringer.showArea(game, game.getStepArea(new Cell("a1"))));
+        System.out.println(ToStringer.showArea(game, game.getStepArea(new Cell("b1"))));
+        System.out.println(ToStringer.showArea(game, game.getStepArea(new Cell("c1"))));
+        System.out.println(ToStringer.showArea(game, game.getStepArea(new Cell("d1"))));
+        System.out.println(ToStringer.showArea(game, game.getStepArea(new Cell("e1"))));
+        System.out.println(ToStringer.showArea(game, game.getStepArea(new Cell("f1"))));
+        System.out.println(ToStringer.showArea(game, game.getStepArea(new Cell("g1"))));
+        System.out.println(ToStringer.showArea(game, game.getStepArea(new Cell("h1"))));
+        System.out.println(ToStringer.showArea(game, game.getStepArea(new Cell("d6"))));
+
+    }
+
+    public String getPrettyJspField() {
+        return ToStringer.toStringPretty(this).replace("\n", "<br>");
     }
 
     private int getFigureColor(int fig) { return fig % 100 / 10; }
 
     private int getFigure(Cell cell) {
-        return board[cell.i][cell.j];
-    }
-
-    private void removeWrongCells(List<Cell> list) {
-        ListIterator<Cell> iter = list.listIterator();
-        while (iter.hasNext()) {
-            Cell c = iter.next();
-            if (!c.wrong()) {} else { iter.remove(); }
-        }
+        return cell.correct() ? board[cell.i][cell.j] : 20;
     }
 
     private List<Cell> getStepArea(Cell of) {
@@ -553,7 +660,6 @@ public class ChessGame {
         actor = (actor + 1) % 2;
         turnCount++;
         history.append('\n');
-        //check check
     }
 
     public String toString() {
@@ -564,21 +670,22 @@ public class ChessGame {
         String error = null;
         String log;
         if (from.wrong()) {
-            error = "Wrong turn: Wrong departure cell: " + from.toString();
+            throw new RuntimeException("Wrong turn: Wrong departure cell: " + from.toString());
         }
         if (to.wrong()) {
-            error = "Wrong turn: Wrong arrival cell: " + to.toString();
+            throw new RuntimeException("Wrong turn: Wrong arrival cell: " + to.toString());
         }
 
         if (isEmpty(from)) {
-            error = "Wrong turn: Departure cell is empty";
+            throw new RuntimeException("Wrong turn: Departure cell is empty");
         }
         int fig = getFigure(from);
         if (getFigureColor(fig) != actor) {
-            error = "Wrong turn: You can't act with enemy chessman";
+            throw new RuntimeException("Wrong turn: You can't act with enemy chessman");
         }
         if (!getStepArea(from).contains(to)) {
-            error = "Wrong turn: There's no path from " + from.toStringPretty() + " to " + to.toStringPretty();
+            throw new RuntimeException("Wrong turn: There's no path from " + from.toStringPretty() + " to " + to
+                    .toStringPretty());
         }
         if (isEmpty(to)) {
             putFigureAt(fig, to);
@@ -586,7 +693,7 @@ public class ChessGame {
             if (isCheck(true)) {
                 putFigureAt(fig, from);
                 putFigureAt(0, to);
-                error = "Wrong turn: You can't make check to yourself";
+                throw new RuntimeException("Wrong turn: You can't make check to yourself");
             }
             log = String.format("%s moved: %s-%s", ToStringer.S[fig], from.toStringPretty(), to.toStringPretty())
                         .trim();
@@ -595,15 +702,15 @@ public class ChessGame {
         } else {
             int def = getFigure(to);
             if (similarColorFigures(from, to)) {
-                error = "Wrong turn: Similar color figures at cells " + from.toStringPretty() + " and " +
-                        to.toStringPretty();
+                throw new RuntimeException("Wrong turn: Similar color figures at cells " + from.toStringPretty() + " and " +
+                        to.toStringPretty());
             }
             putFigureAt(fig, to);
             putFigureAt(0, from);
             if (isCheck(true)) {
                 putFigureAt(fig, from);
                 putFigureAt(def, to);
-                error = "Wrong turn: You can't make check to yourself";
+                throw new RuntimeException("Wrong turn: You can't make check to yourself");
             }
             log = String.format("%s ate %s %s:%s", ToStringer.S[fig], ToStringer.S[def], from.toStringPretty(),
                                 to.toStringPretty());
@@ -614,7 +721,8 @@ public class ChessGame {
                    .append(ToStringer.S[def])
                    .append(to.toStringPretty());
         }
-        lastTurnInfo = new TurnInfo(log, isCheck(false), error);
+        lastTurnInfo = new TurnInfo(log, isCheck(false));
+        endOfTurn();
     }
 
     private void putFigureAt(int fig, Cell at) {
@@ -622,7 +730,7 @@ public class ChessGame {
     }
 
     private boolean isEmpty(Cell from) {
-        return getFigure(from) % 10 == 0;
+        return from.correct() && getFigure(from) % 10 == 0;
     }
 
     private boolean similarColorFigures(Cell c1, Cell c2) {
@@ -682,6 +790,14 @@ public class ChessGame {
 
     public TurnInfo getLastTurnInfo() {
         return lastTurnInfo;
+    }
+
+    public UserAccount getActor() {
+        return players[actor];
+    }
+
+    public UserAccount[] getPlayers() {
+        return players;
     }
 
 }

@@ -27,16 +27,17 @@ public class GameServlet extends HttpServlet {
         if (user == null) {
             resp.sendRedirect("/chessonline/login");
         } else {
-            synchronized (gameCreationLocker) {
-                ChessGame game = user.getGame();
-                if (game == null) {
-                    UserAccount opponent = user.getOpponent();
-                    int dice = new Random().nextInt()%2;
+            ChessGame game = user.getGame();
+            if (game == null) {
+                UserAccount opponent = user.getOpponent();
+                if (opponent.getGame() == null) {
+                    int dice = new Random().nextInt() % 2;
                     game = dice == 0 ? new ChessGame(user, opponent) : new ChessGame(opponent, user);
                     opponent.setGame(game);
                 }
-                user.setState(UserAccount.State.PLAYING);
+                user.setGame(opponent.getGame());
             }
+            user.setState(UserAccount.State.PLAYING);
             fwd(req, resp);
         }
     }

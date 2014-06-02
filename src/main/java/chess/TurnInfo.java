@@ -14,20 +14,12 @@ public class TurnInfo {
         return isCheck;
     }
 
-    public String getError() {
-        return error;
-    }
-
-    public TurnInfo(String log, boolean isCheck, String error) {
-
+    public TurnInfo(String log, boolean isCheck) {
         this.log = log;
         this.isCheck = isCheck;
-        this.error = error;
     }
 
     private String  log;
     private boolean isCheck;
-    private String  error;
-
 
 }

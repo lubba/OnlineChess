@@ -41,8 +41,10 @@ public class LoginServlet extends HttpServlet {
                     break;
                 }
             }
-            req.setAttribute("fail", fail);
-            fwd(req, resp);
+            if (fail) {
+                req.setAttribute("fail", true);
+                fwd(req, resp);
+            } else {resp.sendRedirect("chessonline/start");}
         } else if ("logout".equals(action)) {
             req.getSession().invalidate();
             fwd(req, resp);

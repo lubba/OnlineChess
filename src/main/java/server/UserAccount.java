@@ -58,6 +58,10 @@ public class UserAccount {
         return game;
     }
 
+    public void setGame(ChessGame game) {
+        this.game = game;
+    }
+
     public int getId() {
 
         return id;
@@ -119,11 +123,5 @@ public class UserAccount {
             hash = ((hash << 5) + hash) + c; //hash * 33 + c;
         }
         return hash;
-    }
-
-    public void setGame(ChessGame game) {
-        if (state == State.AWAITING_GAME) {
-            this.game = game;
-        } else { throw new IllegalStateException("Player do not waiting for game start"); }
     }
 }
