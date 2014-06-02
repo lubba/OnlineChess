@@ -10,6 +10,19 @@
         <servlet-name>start</servlet-name>
         <url-pattern>/start</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>start</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>game</servlet-name>
+        <servlet-class>GameServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>game</servlet-name>
+        <url-pattern>/game</url-pattern>
+    </servlet-mapping>
 
     <servlet>
         <servlet-name>login</servlet-name>
@@ -29,7 +42,6 @@
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
 
-
     <servlet>
         <servlet-name>users.jsp</servlet-name>
         <jsp-file>/admin/users.jsp</jsp-file>
@@ -38,4 +50,5 @@
         <servlet-name>users.jsp</servlet-name>
         <url-pattern>/users</url-pattern>
     </servlet-mapping>
+
 </web-app>
