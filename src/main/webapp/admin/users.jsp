@@ -13,12 +13,14 @@
             <td>Id</td>
             <td>Login</td>
             <td>State</td>
+            <td>Offers</td>
         </tr>
         <c:forEach var="user" items="${applicationScope.accounts}">
                 <tr>
                     <td>${user.id}</td>
                     <td>${user.login}</td>
-                    <td>${user.state}</td>
+                    <td>${user.stateInt}</td>
+                    <td>${user.offersString}</td>
                 </tr>
         </c:forEach>
     </table>

@@ -1,4 +1,6 @@
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: Alpen Ditrix
@@ -9,7 +11,8 @@ public class UserAccount {
     public enum State {
         PLAYING,
         SEARCHING,
-        NOT_PLAYING
+        NOT_PLAYING,
+        AWAITING_GAME;
     }
 
     public static int idDispatcher = 1;
@@ -18,10 +21,29 @@ public class UserAccount {
     private final long   passwordHash;
     private final int id;
     private       State  state;
+    private List<UserAccount> playOffers = new ArrayList<UserAccount>();
 
-    public State getState() {
-        return state;
+    public boolean addOffer(UserAccount friend) {
+        boolean connected = false;
+        if(friend.getOffers().contains(this)){
+            state = State.AWAITING_GAME;
+            friend.setState(State.AWAITING_GAME);
+
+            playOffers.clear();
+            friend.getOffers().clear();
+
+            friend.getOffers().add(this);
+            connected = true;
+        }
+        playOffers.add(friend);
+        return connected;
     }
+
+    public int getStateInt() {
+        return state.ordinal();
+    }
+    public State getState() {return state;}
+
 
     public int getId() {
 
@@ -68,4 +90,14 @@ public class UserAccount {
         return password.concat(login);
     }
 
+    public void setState(State state) {
+        this.state = state;
+    }
+    public String getOffersString(){
+        return playOffers.toString();
+    }
+    public List<UserAccount> getOffers(){
+        return playOffers;
+    }
+    public int getOffersAmount(){return playOffers.size();}
 }

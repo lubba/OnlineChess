@@ -14,9 +14,12 @@ public class LoginServlet extends HttpServlet {
 
     public static final String JASPER = "/auth/login.jsp";
 
+    private static void fwd(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {req.getRequestDispatcher(JASPER).forward(req, resp);}
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher(JASPER).forward(req, resp);
+        fwd(req, resp);
     }
 
     @Override
@@ -37,7 +40,10 @@ public class LoginServlet extends HttpServlet {
                 }
             }
             req.setAttribute("fail", fail);
-            req.getRequestDispatcher(JASPER).forward(req, resp);
+            fwd(req, resp);
+        } else if ("logout".equals(action)) {
+            req.getSession().invalidate();
+            fwd(req, resp);
         }
     }
 }
