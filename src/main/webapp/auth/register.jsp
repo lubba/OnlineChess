@@ -9,7 +9,7 @@
 
 <body>
     <div>
-        <form action="" method="post">
+        <form action="chessonline/register" method="post">
             <input name="login" value="Login" autofocus><br>
             <c:if test="${duplicateLogin}"><div class="error">Login already in use. Choose another.</div></c:if>
             <c:if test="${emptyLogin}"><div class="error">Login can not be empty.</div></c:if>
