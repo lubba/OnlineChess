@@ -1,5 +1,7 @@
 package chess;
 
+import server.UserAccount;
+
 import java.util.*;
 
 /**
@@ -12,26 +14,26 @@ public class ChessGame {
     public static final int WHITE = 0;
     public static final int BLACK = 1;
 
-    public static final  int        PAWN       = 1;
-    public static final  int        BISHOP     = 2;
-    public static final  int        KNIGHT     = 3;
-    public static final  int        ROOK       = 4;
-    public static final  int        QUEEN      = 5;
-    public static final  int        KING       = 6;
-    private static final short      BOARD_SIZE = 8;
-    private final       int[][]    board      = new int[BOARD_SIZE][BOARD_SIZE];
-    private final        AttackArea aa         = new AttackArea();
-    private final        StepArea   sa         = new StepArea();
-    private final        MakesCheck mc         = new MakesCheck();
-    private final StringBuilder history = new StringBuilder("\nHistory:\n");
-    private boolean whiteTurn = true;
+    public static final  int           PAWN       = 1;
+    public static final  int           BISHOP     = 2;
+    public static final  int           KNIGHT     = 3;
+    public static final  int           ROOK       = 4;
+    public static final  int           QUEEN      = 5;
+    public static final  int           KING       = 6;
+    private static final short         BOARD_SIZE = 8;
+    private final        int[][]       board      = new int[BOARD_SIZE][BOARD_SIZE];
+    private final        AttackArea    aa         = new AttackArea();
+    private final        StepArea      sa         = new StepArea();
+    private final        MakesCheck    mc         = new MakesCheck();
+    private final        StringBuilder history    = new StringBuilder("\nHistory:\n");
+    private              int           actor      = WHITE;
     private int turnCount;
-    private int ID1, ID2;
+    private UserAccount[] players = new UserAccount[2];
     private TurnInfo lastTurnInfo;
 
-    public ChessGame(int whiteId, int blackId) {
-        ID1 = whiteId;
-        ID2 = blackId;
+    public ChessGame(UserAccount white, UserAccount black) {
+        players[0] = white;
+        players[1] = black;
         setUp(board);
     }
 
@@ -363,7 +365,7 @@ public class ChessGame {
         public List<Cell> pawn(Cell of) {
             List<Cell> list = new ArrayList<Cell>();
             int fig = getFigure(of);
-            if (isWhite(fig)) {
+            if (getFigureColor(fig) == WHITE) {
                 Cell l = of.q();
                 if (l.correct()) { list.add(l); }
                 Cell r = of.e();
@@ -382,7 +384,7 @@ public class ChessGame {
         public List<Cell> pawn(Cell cell) {
             List<Cell> list = aa.pawn(cell);
             int fig = getFigure(cell);
-            if (isWhite(fig)) {
+            if (getFigureColor(fig) == WHITE) {
                 Cell l = cell.q();
                 Cell r = cell.e();
                 if (getFigure(l) != 11 && getFigure(r) != 11) { list.add(cell.w()); }
@@ -493,7 +495,7 @@ public class ChessGame {
         return ToStringer.toStringPretty(this);
     }
 
-    private boolean isWhite(int fig) { return fig < 10; }
+    private int getFigureColor(int fig) { return fig % 100 / 10; }
 
     private int getFigure(Cell cell) {
         return board[cell.i][cell.j];
@@ -548,7 +550,7 @@ public class ChessGame {
     }
 
     void endOfTurn() {
-        whiteTurn = !whiteTurn;
+        actor = (actor + 1) % 2;
         turnCount++;
         history.append('\n');
         //check check
@@ -558,7 +560,7 @@ public class ChessGame {
         return ToStringer.parse(board);
     }
 
-    public TurnInfo makeTurn(Cell from, Cell to) {
+    public void makeTurn(Cell from, Cell to) {
         String error = null;
         String log;
         if (from.wrong()) {
@@ -572,7 +574,7 @@ public class ChessGame {
             error = "Wrong turn: Departure cell is empty";
         }
         int fig = getFigure(from);
-        if (isWhite(fig) ^ whiteTurn) {
+        if (getFigureColor(fig) != actor) {
             error = "Wrong turn: You can't act with enemy chessman";
         }
         if (!getStepArea(from).contains(to)) {
@@ -586,9 +588,8 @@ public class ChessGame {
                 putFigureAt(0, to);
                 error = "Wrong turn: You can't make check to yourself";
             }
-            log = String.format("%s moved: %s-%s", ToStringer.S[fig], from.toStringPretty(),
-                                   to.toStringPretty())
-                           .trim();
+            log = String.format("%s moved: %s-%s", ToStringer.S[fig], from.toStringPretty(), to.toStringPretty())
+                        .trim();
             history.append('[').append(turnCount).append(']').append(' ');
             history.append(ToStringer.S[fig]).append(from.toStringPretty()).append('-').append(to.toStringPretty());
         } else {
@@ -604,8 +605,8 @@ public class ChessGame {
                 putFigureAt(def, to);
                 error = "Wrong turn: You can't make check to yourself";
             }
-            log = String.format("%s ate %s %s:%s", ToStringer.S[fig], ToStringer.S[def], from.toStringPretty(), to
-                    .toStringPretty());
+            log = String.format("%s ate %s %s:%s", ToStringer.S[fig], ToStringer.S[def], from.toStringPretty(),
+                                to.toStringPretty());
             history.append('[').append(turnCount).append(']').append(' ');
             history.append(ToStringer.S[fig])
                    .append(from.toStringPretty())
@@ -614,7 +615,6 @@ public class ChessGame {
                    .append(to.toStringPretty());
         }
         lastTurnInfo = new TurnInfo(log, isCheck(false), error);
-        return lastTurnInfo;
     }
 
     private void putFigureAt(int fig, Cell at) {
@@ -629,9 +629,18 @@ public class ChessGame {
         return getFigure(c1) / 10 == getFigure(c2) / 10;
     }
 
+    /**
+     * TODO нужно, чтобы была не проверка по всем фигурам, а обратная, от короля:
+     * пытаемся походить ходом фигуры типа Х. Если по полученной клетке стоит Х противника, то значит она и бьет
+     * короля.
+     *
+     * @param self
+     *
+     * @return
+     */
     private boolean isCheck(boolean self) {
-        int attackerColor = whiteTurn ^ self ? 0 : 1;
-        int defenderColor = whiteTurn ^ self ? 1 : 0;
+        int attackerColor = actor;
+        int defenderColor = ~actor;
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 Cell c = new Cell(i, j);
@@ -667,14 +676,6 @@ public class ChessGame {
         return turnCount;
     }
 
-    public int getActorId() {
-        return whiteTurn?ID1:ID2;
-    }
-
-    public String getColor(int ID) {
-        return ID == ID1 ? "White" : "Black";
-    }
-
     public String getHistory() {
         return history.toString();
     }
@@ -683,8 +684,4 @@ public class ChessGame {
         return lastTurnInfo;
     }
 
-    public static void main(String[] args) {
-        ChessGame game = new ChessGame(0, 1);
-        System.out.println(ToStringer.toStringPretty(game));
-    }
 }
