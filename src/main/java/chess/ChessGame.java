@@ -71,11 +71,11 @@ public class ChessGame {
         }
 
         public String toString() {
-            return "[" + j + ", " + i + ']';
+            return "[" + j + ", " + (8 - i) + ']';
         }
 
         public String toStringPretty() {
-            return l[j] + "" + i;
+            return l[j] + "" + (8 - i);
         }
 
         public boolean wrong() {
@@ -276,6 +276,7 @@ public class ChessGame {
             return false;
         }
     }
+
     @Deprecated
     private final class AttackArea {
         @Deprecated
@@ -303,6 +304,7 @@ public class ChessGame {
             }
             return list;
         }
+
         @Deprecated
         public List<Cell> rook(Cell cell) {
             List<Cell> list = new ArrayList<Cell>();
@@ -337,12 +339,14 @@ public class ChessGame {
             }
             return list;
         }
+
         @Deprecated
         public List<Cell> queen(Cell of) {
             List<Cell> bish = bishop(of);
             bish.addAll(rook(of));
             return bish;
         }
+
         @Deprecated
         public List<Cell> king(Cell of) {
             List<Cell> list = new ArrayList<Cell>();
@@ -366,6 +370,7 @@ public class ChessGame {
             removeWrongCells(list);
             return list;
         }
+
         @Deprecated
         public List<Cell> knight(Cell of) {
             List<Cell> list = new ArrayList<Cell>();
@@ -393,6 +398,7 @@ public class ChessGame {
             removeWrongCells(list);
             return list;
         }
+
         @Deprecated
         public List<Cell> pawn(Cell of) {
             List<Cell> list = new ArrayList<Cell>();
@@ -684,8 +690,8 @@ public class ChessGame {
             throw new RuntimeException("Wrong turn: You can't act with enemy chessman");
         }
         if (!getStepArea(from).contains(to)) {
-            throw new RuntimeException("Wrong turn: There's no path from " + from.toStringPretty() + " to " + to
-                    .toStringPretty());
+            throw new RuntimeException(
+                    "Wrong turn: There's no path from " + from.toStringPretty() + " to " + to.toStringPretty());
         }
         if (isEmpty(to)) {
             putFigureAt(fig, to);
@@ -702,8 +708,10 @@ public class ChessGame {
         } else {
             int def = getFigure(to);
             if (similarColorFigures(from, to)) {
-                throw new RuntimeException("Wrong turn: Similar color figures at cells " + from.toStringPretty() + " and " +
-                        to.toStringPretty());
+                throw new RuntimeException(
+                        "Wrong turn: Similar color figures at cells " + from.toStringPretty() + " and " +
+                                to.toStringPretty()
+                );
             }
             putFigureAt(fig, to);
             putFigureAt(0, from);

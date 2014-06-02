@@ -18,7 +18,7 @@ public class Scope {
         if (list == null) {
             list = new ArrayList<UserAccount>(){{
                 add(new UserAccount("admin", "iddqd"));
-                add(new UserAccount("Alpen Ditrix", "qwedas"));
+                add(new UserAccount("Alpen Ditrix", "iddqd"));
             }};
 
             context.setAttribute(a_ACCOUNTS, list);
