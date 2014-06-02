@@ -29,6 +29,10 @@ public class RegistrationServlet extends HttpServlet {
                 fail = true;
                 req.setAttribute("emptyLogin", true);
             }
+            if(login.contains(" ")){
+                fail = true;
+                req.setAttribute("spacesInLogin", true);
+            }
             List<UserAccount> accounts = Scope.getUserAccounts(req.getSession().getServletContext());
             for (UserAccount acc : accounts) {
                 if (acc.getLogin().equals(login)) {
