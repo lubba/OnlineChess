@@ -17,6 +17,7 @@ public class Scope {
     public static final    String s_ID         = "id";
     public static final    String a_GAME_QUEUE = "want2play";
     public static final    String s_REGISTERED = "registered";
+    public static final    String a_ACCOUNTS   = "accounts";
     public static volatile int    idDispatcher = 0;
 
     public static Map<Integer, Integer> getColors(ServletContext context) {
@@ -78,11 +79,11 @@ public class Scope {
     }
 
     public static List<UserAccount> getUserAccounts(ServletContext context) {
-        List<UserAccount> map = (List<UserAccount>) context.getAttribute("accounts");
-        if (map == null) {
-            map = new ArrayList<UserAccount>();
-            context.setAttribute(a_NICKNAMES, map);
+        List<UserAccount> list = (List<UserAccount>) context.getAttribute(a_ACCOUNTS);
+        if (list == null) {
+            list = new ArrayList<UserAccount>();
+            context.setAttribute(a_ACCOUNTS, list);
         }
-        return map;
+        return list;
     }
 }

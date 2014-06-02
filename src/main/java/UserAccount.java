@@ -46,7 +46,7 @@ public class UserAccount {
      *
      * @return hash of input string
      */
-    private long hash(String str) {
+    private  static long hash(String str) {
         long hash = 5381;
         char[] chars = SALT.concat(str).toCharArray();
         for (char c : chars) {
@@ -56,12 +56,15 @@ public class UserAccount {
     }
 
     public boolean tryLogin(@NotNull String login, @NotNull String password) {
-        return login.equals(this.login) && comparePassword(password);
+        return login.equals(this.login) && comparePassword(fullPassword(login, password));
     }
 
     public boolean comparePassword(String password) {
-        return (passwordHash == hash(password));
+        return (passwordHash == hash(fullPassword(login, password)));
     }
 
+    private static String fullPassword(String login, String password) {
+        return password.concat(login);
+    }
 
 }

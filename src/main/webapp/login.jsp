@@ -21,6 +21,11 @@
             <input type="submit" value="Sing In">
         </form>
     </div>
+    <c:if test="${not empty fail and not fail}">
+        <div>
+            Nice! You have been logged in now!
+        </div>
+    </c:if>
     <div>
         Not registered?
         <form action="" method="post">
