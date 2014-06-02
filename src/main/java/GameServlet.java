@@ -1,13 +1,7 @@
-import chess.ChessGame;
-import chess.ChessGame.Cell;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
@@ -17,47 +11,29 @@ import java.io.IOException;
  */
 public class GameServlet extends HttpServlet {
 
-    public static final String ACTION_GO = "GO";
+
+    private static void fwd(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {req.getRequestDispatcher("/game.jsp").forward(req, resp);}
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        resp.setCharacterEncoding("UTF-8");
-        HttpSession session = req.getSession();
-        ServletContext context = session.getServletContext();
-        redirectToJasper(req, resp);
+        UserAccount user = (UserAccount) (req.getSession().getAttribute("user"));
+        if (user == null) {
+            resp.sendRedirect("/chessonline/login");
+        } else {
+            fwd(req, resp);
+        }
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        resp.setCharacterEncoding("UTF-8");
-        HttpSession session = req.getSession();
-        ServletContext context = session.getServletContext();
-
-        int id = Scope.getSessionId(session);
-
-        String action = req.getParameter("action");
-        if (ACTION_GO.equals(action)) {
-            ChessGame game = Scope.getGames(context).get(id);
-            String from = req.getParameter("from");
-            String to = req.getParameter("to");
-            try {
-                Cell c_from = new Cell(from);
-                Cell c_to = new Cell(to);
-                game.makeTurn(c_from, c_to);
-            } catch (Exception e) {
-                session.setAttribute("error", e);
-            }
-            redirectToJasper(req, resp);
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        UserAccount user = (UserAccount) (req.getSession().getAttribute("user"));
+        if (user == null) {
+            resp.sendRedirect("/chessonline/login");
+        } else {
+            fwd(req, resp);
         }
-
-
-        redirectToJasper(req, resp);
     }
 
-    private void redirectToJasper(HttpServletRequest req, HttpServletResponse resp) throws ServletException,                                                  IOException {
-        RequestDispatcher rd = req.getRequestDispatcher("/game.jsp");
-        rd.forward(req, resp);
-    }
 }
