@@ -13,6 +13,7 @@
             <input name="login" value="Login" autofocus><br>
             <c:if test="${duplicateLogin}"><div class="error">Login already in use. Choose another.</div></c:if>
             <c:if test="${emptyLogin}"><div class="error">Login can not be empty.</div></c:if>
+            <c:if test="${spacesInLogin}"><div class="error">Login can not contain space characters.</div></c:if>
             <input type="password" name="password" value="Password"><br>
             <c:if test="${shortPassword}"><div class="error">Password must have at least 3 symbols.</div></c:if>
             <input type="submit" value="Sing Up">

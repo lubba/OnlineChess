@@ -1,3 +1,5 @@
+import chess.ChessGame;
+
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,19 +18,21 @@ public class UserAccount {
     }
 
     private static final String SALT         = "my name is Alice";
-    public static        int    idDispatcher = 1;
-    private final String login;
-    private final long   passwordHash;
-    private final int    id;
-    private       State  state;
-    private List<UserAccount> playOffers = new ArrayList<UserAccount>();
+    private static       int    idDispatcher = 1;
+
+    private final String            login;
+    private final long              passwordHash;
+    private final int               id;
+    private final List<UserAccount> playOffers;
+    private       State             state;
+    private ChessGame game;
 
     public UserAccount(String login, String password) {
         this.login = login;
         this.passwordHash = hash(password);
         state = State.NOT_PLAYING;
         id = idDispatcher++;
-
+        playOffers = new ArrayList<UserAccount>();
     }
 
     public boolean addOffer(UserAccount friend) {
@@ -47,14 +51,8 @@ public class UserAccount {
         return connected;
     }
 
-    public int getStateInt() {
-        return state.ordinal();
-    }
-
-    public State getState() {return state;}
-
-    public void setState(State state) {
-        this.state = state;
+    public ChessGame getGame() {
+        return game;
     }
 
     public int getId() {
@@ -64,6 +62,38 @@ public class UserAccount {
 
     public String getLogin() {
         return login;
+    }
+
+    public List<UserAccount> getOffers() {
+        return playOffers;
+    }
+
+    public String getOffersString() {
+        return playOffers.toString();
+    }
+
+    public int getOffersAmount() {
+        return playOffers.size();
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public int getStateInt() {
+        return state.ordinal();
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public boolean tryLogin(@NotNull String login, @NotNull String password) {
+        return login.equals(this.login) && comparePassword(password);
+    }
+
+    private boolean comparePassword(String password) {
+        return (passwordHash == hash(password));
     }
 
     /**
@@ -82,21 +112,4 @@ public class UserAccount {
         return hash;
     }
 
-    public boolean tryLogin(@NotNull String login, @NotNull String password) {
-        return login.equals(this.login) && comparePassword(password);
-    }
-
-    public boolean comparePassword(String password) {
-        return (passwordHash == hash(password));
-    }
-
-    public String getOffersString() {
-        return playOffers.toString();
-    }
-
-    public List<UserAccount> getOffers() {
-        return playOffers;
-    }
-
-    public int getOffersAmount() {return playOffers.size();}
 }
