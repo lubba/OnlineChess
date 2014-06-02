@@ -3,6 +3,7 @@ import chess.ChessGame;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * User: Alpen Ditrix
@@ -89,7 +90,7 @@ public class UserAccount {
     }
 
     public boolean tryLogin(@NotNull String login, @NotNull String password) {
-        return login.equals(this.login) && comparePassword(password);
+        return login.equalsIgnoreCase(this.login) && comparePassword(password);
     }
 
     private boolean comparePassword(String password) {
@@ -105,7 +106,7 @@ public class UserAccount {
      */
     private long hash(String str) {
         long hash = 5381;
-        char[] chars = SALT.concat(str).concat(login).toCharArray();
+        char[] chars = SALT.concat(str).concat(login.toLowerCase(Locale.ENGLISH)).toCharArray();
         for (char c : chars) {
             hash = ((hash << 5) + hash) + c; //hash * 33 + c;
         }
